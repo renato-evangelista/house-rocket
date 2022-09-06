@@ -33,7 +33,7 @@ def overview_data(data):
     f_attributes = st.sidebar.multiselect('Enter columns', data.columns)
     f_zipcode = st.sidebar.multiselect('Enter zipcode', data['zipcode'].unique())
     st.title('House Rocket Data')
-    st.image("/home/renato/PycharmProjects/zero_ao_ds/Sale-1.jpg", width = 500)
+    #st.image("/home/renato/PycharmProjects/zero_ao_ds/Sale-1.jpg", width = 500)
     st.write('House Rocket é uma empresa fictícia de real estate localizada em King County, Seattle. Seu principal negócio é voltado para a revenda de imóveis naquela região. Porém, ultimamente a empresa está passando por dificuldades financeiras porque não consegue encontrar bons imóveis para comprar e, posteriormente, revender. Portanto, os objetivos dessa análise de dados  são encontrar bons imóveis para comprar e decidir o melhor momento e preço para vendê-los.')
 
     b_dataset = st.checkbox('Display Dataset')
