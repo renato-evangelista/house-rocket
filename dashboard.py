@@ -31,58 +31,27 @@ def set_feature(data):
 def overview_data(data):
 
     f_attributes = st.sidebar.multiselect('Enter columns', data.columns)
-    f_zipcode = st.sidebar.multiselect('Enter zipcode',
-                                       data['zipcode'].unique())
-    st.title('Data Overview')
+    f_zipcode = st.sidebar.multiselect('Enter zipcode', data['zipcode'].unique())
+    st.title('House Rocket Data')
+    st.image("/home/renato/PycharmProjects/zero_ao_ds/Sale-1.jpg", width = 500)
+    st.write('House Rocket é uma empresa fictícia de real estate localizada em King County, Seattle. Seu principal negócio é voltado para a revenda de imóveis naquela região. Porém, ultimamente a empresa está passando por dificuldades financeiras porque não consegue encontrar bons imóveis para comprar e, posteriormente, revender. Portanto, os objetivos dessa análise de dados  são encontrar bons imóveis para comprar e decidir o melhor momento e preço para vendê-los.')
 
-    if (f_zipcode != []) & (f_attributes != []):
-        data = data.loc[data['zipcode'].isin(f_zipcode), f_attributes]
+    b_dataset = st.checkbox('Display Dataset')
+    if b_dataset:
+        st.dataframe(data)
 
-    elif (f_zipcode != []) & (f_attributes == []):
-        data = data.loc[data['zipcode'].isin(f_zipcode), :]
 
-    elif (f_zipcode == []) & (f_attributes != []):
-        data = data.loc[:, f_attributes]
-
-    else:
-        data = data.copy()
-
-    st.dataframe(data.head())
-
+    st.title('Hypotheses')
     c1, c2 = st.columns((1, 1))
 
-    # Average metrics
-    df1 = data[['id', 'zipcode']].groupby('zipcode').count().reset_index()
-    df2 = data[['price', 'zipcode']].groupby('zipcode').mean().reset_index()
-    df3 = data[['sqft_living', 'zipcode']].groupby('zipcode').mean().reset_index()
-    df4 = data[['price_m2', 'zipcode']].groupby('zipcode').mean().reset_index()
+    c1.write('H1) Imóveis que possuem vista para a água são, em média, 30% mais caros.')
+    c1.image("/home/renato/PycharmProjects/zero_ao_ds/hip1.png")
 
-    # merge
-    m1 = pd.merge(df1, df2, on='zipcode', how='inner')
-    m2 = pd.merge(m1, df3, on='zipcode', how='inner')
-    df = pd.merge(m2, df4, on='zipcode', how='inner')
+    c2.write('H2) Imóveis com data de construção menor que 1955 são, em média, 50% mais baratos.')
+    c2.image("/home/renato/PycharmProjects/zero_ao_ds/hip2.png")
 
-    df.columns = ['ZIPCODE', 'TOTAL HOUSES', 'PRICE',
-                  'SQRT LIVING', 'PRICE/M2']
-
-    c1.header('Average Values')
-    c1.dataframe(df, height=600)
-
-    # Statistic descriptive
-    num_attributes = data.select_dtypes(include=['int64', 'float64'])
-    media = pd.DataFrame(num_attributes.apply(np.mean))
-    mediana = pd.DataFrame(num_attributes.apply(np.median))
-    std = pd.DataFrame(num_attributes.apply(np.std))
-
-    max_ = pd.DataFrame(num_attributes.apply(np.max))
-    min_ = pd.DataFrame(num_attributes.apply(np.min))
-
-    df1 = pd.concat([max_, min_, media, mediana, std], axis=1).reset_index()
-    df1.columns = ['attributes', 'max', 'min', 'mean', 'median', 'std']
-
-    c2.header('Descriptive Analysis')
-    c2.dataframe(df1, height=600)
-
+    c1.write('H3) Imóveis com porão são, em média, 20% mais caros.')
+    c1.image('/home/renato/PycharmProjects/zero_ao_ds/hip3.png')
     return None
 
 def portfolio_density(data, geofile):
