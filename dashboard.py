@@ -353,8 +353,6 @@ if __name__ == "__main__":
 
     data = set_feature(data)
 
-
-
     overview_data(data)
 
     portfolio_density(data, geofile)
