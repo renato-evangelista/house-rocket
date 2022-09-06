@@ -36,22 +36,24 @@ def overview_data(data):
     #st.image("/home/renato/PycharmProjects/zero_ao_ds/Sale-1.jpg", width = 500)
     st.write('House Rocket é uma empresa fictícia de real estate localizada em King County, Seattle. Seu principal negócio é voltado para a revenda de imóveis naquela região. Porém, ultimamente a empresa está passando por dificuldades financeiras porque não consegue encontrar bons imóveis para comprar e, posteriormente, revender. Portanto, os objetivos dessa análise de dados  são encontrar bons imóveis para comprar e decidir o melhor momento e preço para vendê-los.')
 
+
     b_dataset = st.checkbox('Display Dataset')
     if b_dataset:
         st.dataframe(data)
 
+    # Hypotheses
 
     st.title('Hypotheses')
+
     c1, c2 = st.columns((1, 1))
 
     c1.write('H1) Imóveis que possuem vista para a água são, em média, 30% mais caros.')
-    c1.image("/home/renato/PycharmProjects/zero_ao_ds/hip1.png")
+    grouped = data[['price', 'condition']].groupby('condition').mean().reset_index()
+    c1.bar_chart(grouped, x='condition', y='price')
 
-    c2.write('H2) Imóveis com data de construção menor que 1955 são, em média, 50% mais baratos.')
-    c2.image("/home/renato/PycharmProjects/zero_ao_ds/hip2.png")
+    c2.write('H2) Imóveis com data de construção menor que 1955 são, em média, 50% mais baratos')
+    c2.bar_chart(grouped, x='condition', y='price')
 
-    c1.write('H3) Imóveis com porão são, em média, 20% mais caros.')
-    c1.image('/home/renato/PycharmProjects/zero_ao_ds/hip3.png')
     return None
 
 def portfolio_density(data, geofile):
