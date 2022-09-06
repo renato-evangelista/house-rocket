@@ -26,6 +26,110 @@ def get_geofile(url):
 def set_feature(data):
     # add new features
     data['price_m2'] = data['price'] / data['sqft_lot']
+
+    # Change Types
+
+    # change the "date" column from type "object" to "datetime"
+    data['date'] = pd.to_datetime(data['date'])
+
+    # change the "yr_built" and "yr_renovated" columns from type "int" to "datetime"
+    data['yr_built'] = pd.to_datetime(data['yr_built'], format='%Y')
+
+    # if "yr_renovated" value is equal to "0", replace with "1900"
+    data['yr_renovated'] = data['yr_renovated'].apply(lambda x: pd.to_datetime('1900', format='%Y') if x == 0 else
+    pd.to_datetime(x, format='%Y'))
+
+    # change the "waterfront" column to "str" type
+    data['waterfront'] = data['waterfront'].astype(str)
+
+    # change the "condition" column to "str" type
+    data['condition'] = data['condition'].astype(str)
+
+
+    # Line Filtering
+
+    # remove row with outlier from the "bedrooms" column
+    data = data.drop(data[data['bedrooms'] == 33].index)
+
+    # sort values by 'id' and 'date'
+    data = data.sort_values(['id', 'date'])
+
+    # keep only recent rows by dropping previous dates
+    data = data.drop_duplicates(subset=['id'], keep='last').reset_index()
+
+    # drop extra index column
+    data = data.drop(columns=['index'])
+
+
+    # Column Selection
+
+    # select columns to drop
+    cols_drop = ['sqft_living15', 'sqft_lot15']
+
+    # drop selected columns
+    data = data.drop(columns=cols_drop)
+
+
+    # Hypotheses
+
+    # H1
+    # add new column with waterfront option ("yes" or "no")
+    data['waterfront_option'] = data['waterfront'].apply(lambda x: 'yes' if x == '1' else 'no')
+
+    # H2
+    # create new column with before and after 1955 values
+    data['is_before_1955'] = data['yr_built'].apply(lambda x: 'before' if x.year < 1955 else 'after')
+
+    # H3
+    # create 'basement' column
+    data['basement_option'] = data['sqft_basement'].apply(lambda x: 'no basement' if x == 0 else 'basement')
+
+    # H4
+    # create 'year' column
+    data['year'] = data['date'].dt.year
+
+    # H5
+    # create new column with year-month format
+    data['month_year'] = data['date'].dt.strftime('%Y-%m')
+
+    # H6
+    # create new column with floor amount
+    data['is_floor'] = data['floors'].apply(lambda x: 'ground floor' if x == 1 else 'more floors')
+
+    # H7
+    # create month column
+    data['month'] = data['date'].dt.strftime('%m')
+
+    # change from object format to int
+    data['month'] = data['month'].astype('int64')
+
+    # create column with season
+    data['season'] = data['month'].apply(lambda x: 'Summer' if 6 <= x <= 8 else
+    'Fall' if 9 <= x <= 11 else
+    'Winter' if (x == 12) or (x == 1) or (x == 2) else
+    'Spring' if 3 <= x <= 5 else None)
+
+    # H8
+    # create column with renovation option
+    data['is_renovated'] = data['yr_renovated'].apply(
+        lambda x: 'not renovated' if x.strftime('%Y') == '1900' else 'renovated')
+
+    # H9
+    # create column with before and after 2010 renovation values
+    data['renovated_2010'] = data['yr_renovated'].apply(lambda x: 'before' if int(x.strftime('%Y')) < 2010 else 'after')
+
+    # H10
+    # create column with condition type
+    data['condition_type'] = data['condition'].apply(lambda x: 'good' if int(x) >= 4 else 'bad')
+
+    # H11
+    # create column with bedroom amount
+    data['bedrooms_amount'] = data['bedrooms'].apply(lambda x: 'up to 2' if x <= 2 else 'more than 2')
+
+    # H12
+    # create column with bathroom amount
+    data['bathrooms_amount'] = data['bathrooms'].apply(lambda x: 'up to 1' if x <= 1 else 'more than 1')
+
     return data
 
 def overview_data(data):
@@ -47,12 +151,22 @@ def overview_data(data):
 
     c1, c2 = st.columns((1, 1))
 
+    #H1
     c1.write('H1) Imóveis que possuem vista para a água são, em média, 30% mais caros.')
-    grouped = data[['price', 'condition']].groupby('condition').mean().reset_index()
-    c1.bar_chart(grouped, x='condition', y='price')
 
+    # group by 'waterfront_option' and take average price
+    grouped = data[['waterfront_option', 'price']].groupby('waterfront_option').mean().reset_index()
+
+    c1.bar_chart(grouped, x='waterfront_option', y='price')
+
+    #H2
     c2.write('H2) Imóveis com data de construção menor que 1955 são, em média, 50% mais baratos')
-    c2.bar_chart(grouped, x='condition', y='price')
+
+    # group data by "before" and "after" year 1955
+    grouped = data[['is_before_1955', 'price']].groupby('is_before_1955').mean().reset_index()
+
+    c2.bar_chart(grouped, x='is_before_1955', y='price')
+
 
     return None
 
@@ -238,6 +352,8 @@ if __name__ == "__main__":
     # transformation
 
     data = set_feature(data)
+
+
 
     overview_data(data)
 
