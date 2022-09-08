@@ -134,12 +134,8 @@ def set_feature(data):
 
 def overview_data(data):
 
-    f_attributes = st.sidebar.multiselect('Enter columns', data.columns)
-    f_zipcode = st.sidebar.multiselect('Enter zipcode', data['zipcode'].unique())
     st.title('House Rocket Data')
-    #st.image("/home/renato/PycharmProjects/zero_ao_ds/Sale-1.jpg", width = 500)
     st.write('House Rocket é uma empresa fictícia de real estate localizada em King County, Seattle. Seu principal negócio é voltado para a revenda de imóveis naquela região. Porém, ultimamente a empresa está passando por dificuldades financeiras porque não consegue encontrar bons imóveis para comprar e, posteriormente, revender. Portanto, os objetivos dessa análise de dados  são encontrar bons imóveis para comprar e decidir o melhor momento e preço para vendê-los.')
-
 
     b_dataset = st.checkbox('Display Dataset')
     if b_dataset:
@@ -147,80 +143,160 @@ def overview_data(data):
 
     # Hypotheses
 
-    st.title('Hypotheses')
+    st.title('Hipóteses')
 
     c1, c2 = st.columns((1, 1))
 
+
     #H1
     c1.write('H1) Imóveis que possuem vista para a água são, em média, 30% mais caros.')
-
     # group by 'waterfront_option' and take average price
     grouped = data[['waterfront_option', 'price']].groupby('waterfront_option').mean().reset_index()
-
+    # plot
     c1.bar_chart(grouped, x='waterfront_option', y='price')
 
     #H2
     c2.write('H2) Imóveis com data de construção menor que 1955 são, em média, 50% mais baratos')
-
     # group data by "before" and "after" year 1955
     grouped = data[['is_before_1955', 'price']].groupby('is_before_1955').mean().reset_index()
-
+    # plot
     c2.bar_chart(grouped, x='is_before_1955', y='price')
 
+    #H3
+    c1.write('H3) Imóveis com porão são, em média, 20% mais caros.')
+    # group by basement
+    grouped = data[['basement_option', 'price']].groupby('basement_option').mean().reset_index()
+    # plot
+    c1.bar_chart(grouped, x='basement_option', y='price')
+
+    #H4
+    c2.write('H4) O crescimento do preço dos imóveis year over year (YoY) é de 10%.')
+    # group by year
+    grouped = data[['year', 'price']].groupby('year').mean().reset_index()
+    # plot
+    c2.bar_chart(grouped, x='year', y='price')
+
+    #H5
+    c1.write('H5) Imóveis com 3 banheiros tem um crescimento month over month (MoM) de 15%.')
+    # group by year-month and return the mean value
+    grouped = data[['price', 'month_year']].groupby('month_year').mean().reset_index()
+    # plot
+    c1.line_chart(grouped, x='month_year', y='price')
+
+    #H6
+    c2.write('H6) Imóveis térreos são, em média, 50% mais baratos do que imóveis com andar.')
+    # group by floor and return mean values
+    grouped = data[['price', 'is_floor']].groupby('is_floor').mean().reset_index()
+    # plot
+    c2.bar_chart(grouped, x='is_floor', y='price')
+
+    #H7
+    c1.write('H7) O preço dos imóveis no inverno é, em média, 20% mais barato do que no verão.')
+    # group by season and return mean price
+    grouped = data[['price', 'season']].groupby('season').mean().reset_index()
+    # plot
+    c1.bar_chart(grouped, x='season',y='price')
+
+    #H8
+    c2.write('H8) Imóveis sem reforma são, em média, 30% mais baratos do que imóveis reformados.')
+    # group by renovation
+    grouped = data.loc[:, ['is_renovated', 'price']].groupby('is_renovated').mean().reset_index()
+    # plot
+    c2.bar_chart(grouped, x='is_renovated', y='price')
+
+    #H9
+    c1.write('H9) Imóveis reformados a partir de 2010 são, em média, 40% mais caros do que imóveis reformados anteriormente (ou sem reforma).')
+    # group by renovation
+    grouped = data.loc[:, ['renovated_2010', 'price']].groupby('renovated_2010').mean().reset_index()
+    # plot
+    c1.bar_chart(grouped, x='renovated_2010', y='price')
+
+    #H10
+    c2.write('H10) Imóveis em boas condições são, em média, 50% mais caros do que imóveis em más condições.')
+    # group by condition
+    grouped = data[['condition_type', 'price']].groupby('condition_type').mean().reset_index()
+    # plot
+    c2.bar_chart(grouped, x='condition_type', y='price')
+
+    #H11
+    c1.write('H11) Imóveis com até 2 quartos são, em média, 20% mais baratos do que imóveis com mais quartos.')
+    # group by bedroom
+    grouped = data.loc[:, ['bedrooms_amount', 'price']].groupby('bedrooms_amount').mean().reset_index()
+    # plot
+    c1.bar_chart(grouped, x='bedrooms_amount', y='price')
+
+    #H12
+    c2.write('H12) Imóveis com 1 banheiro são, em média, 30% mais baratos do que imóveis com mais banheiros.')
+    # group by bathroom amount
+    grouped = data.loc[:, ['price', 'bathrooms_amount']].groupby('bathrooms_amount').mean().reset_index()
+    # plot
+    c2.bar_chart(grouped, x='bathrooms_amount', y='price')
 
     return None
 
 def portfolio_density(data, geofile):
 
-    st.title('Region Overview')
+    # group by zipcode and return median price
+    grouped = data[['zipcode', 'price']].groupby('zipcode').median().reset_index()
 
-    c1, c2 = st.columns((1, 1))
-    c1.header('Portfolio Density')
+    # rename column 'price' to 'median_price'
+    grouped = grouped.rename(columns={'price': 'median_price'})
 
-    df = data.sample(10)
+    # merge dataframes by zipcode - the new column shows median price per zipcode
+    data = pd.merge(data, grouped, on='zipcode', how='inner')
+
+    # create new empty column
+    data['status'] = 0
+
+    # for each line (i) in dataframe
+    for i in range(len(data)):
+
+        # if the conditions below
+        if (data.loc[i, 'price'] <= data.loc[i, 'median_price']) & (data.loc[i, 'condition_type'] == 'good') & (
+                data.loc[i, 'waterfront_option'] == 'no') & (data.loc[i, 'basement_option'] == 'no basement') & (
+                data.loc[i, 'is_floor'] == 'ground floor') & (data.loc[i, 'bedrooms'] <= 2) & (
+                data.loc[i, 'bathrooms_amount'] == 'up to 1'):
+
+            # the empty column assign "buy"
+            data.loc[i, 'status'] = "buy"
+
+        else:
+
+            # the empty column assign "don't buy"
+            data.loc[i, 'status'] = "don't buy"
+
+    # Data Separation
+    data_dont_buy = data[data['status'] == "don't buy"]
+    data_buy = data[data['status'] == 'buy']
+
+
+
+
+    # MAP
+
+    st.title('Map')
 
     # Base Map - Folium
-    density_map = folium.Map(location=[data['lat'].mean(),
-                                       data['long'].mean()],
-                             default_zoom_start=15)
+    m = folium.Map(location=[data['lat'].mean(), data['long'].mean()], default_zoom_start=15)
 
-    marker_cluster = MarkerCluster().add_to(density_map)
-    for name, row in df.iterrows():
-        folium.Marker([row['lat'], row['long']],
-                      popup='Sold R${0} on: {1}. Features: {2} sqft, {3} bedrooms, {4} bathrooms, year built: {5}'.format(
-                          row['price'],
-                          row['date'],
-                          row['sqft_living'],
-                          row['bedrooms'],
-                          row['bathrooms'],
-                          row['yr_built'])).add_to(marker_cluster)
 
-    with c1:
-        folium_static(density_map)
 
-    # Region Price Map
-    c2.header('Price Density')
 
-    df = data[['price', 'zipcode']].groupby('zipcode').mean().reset_index()
-    df.columns = ['ZIP', 'PRICE']
+    # Dont buy dots
+    locations = list(zip(data_dont_buy['lat'], data_dont_buy['long']))
 
-    geofile = geofile[geofile['ZIP'].isin(df['ZIP'].tolist())]
+    for i in range(len(locations)):
+        folium.CircleMarker(location=locations[i], radius=1).add_to(m)
 
-    region_price_map = folium.Map(location=[data['lat'].mean(),
-                                            data['long'].mean()],
-                                  default_zoom_start=15)
 
-    region_price_map.choropleth(data=df,
-                                geo_data=geofile,
-                                columns=['ZIP', 'PRICE'],
-                                key_on='feature.properties.ZIP',
-                                fill_color='YlOrRd',
-                                fill_opacity=0.7,
-                                line_opacity=0.2,
-                                legend_name='AVG PRICE')
 
-    with c2:
-        folium_static(region_price_map)
+
+    # Marker buy dots
+    for name, row in data_buy.iterrows():
+
+        folium.Marker([row['lat'], row['long']], popup='Price: R${0}. Bedrooms: {1}. Bathrooms: {2}. Sqft_living: {3}. Year built: {4}'.format(row['price'], row['bedrooms'], row['bathrooms'], row['sqft_living'], row['yr_built']), icon=folium.Icon(color='green')).add_to(m)
+
+    folium_static(m)
 
     return None
 
