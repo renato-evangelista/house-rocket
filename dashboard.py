@@ -133,7 +133,10 @@ def set_feature(data):
     return data
 
 def overview_data(data):
-    st.image('sale.jpg')
+    col1, col2, col3 = st.columns(3)
+    col2.image('sale.jpg', width=300)
+
+
     st.title('House Rocket Data')
     st.write('House Rocket é uma empresa fictícia de real estate localizada em King County, Seattle. Seu principal negócio é voltado para a revenda de imóveis naquela região. Porém, ultimamente a empresa está passando por dificuldades financeiras porque não consegue encontrar bons imóveis para comprar e, posteriormente, revender. Portanto, os objetivos dessa análise de dados  são encontrar bons imóveis para comprar e decidir o melhor momento e preço para vendê-los.')
 
