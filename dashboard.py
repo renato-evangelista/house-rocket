@@ -133,7 +133,7 @@ def set_feature(data):
     return data
 
 def overview_data(data):
-
+    st.image('sale.jpg')
     st.title('House Rocket Data')
     st.write('House Rocket é uma empresa fictícia de real estate localizada em King County, Seattle. Seu principal negócio é voltado para a revenda de imóveis naquela região. Porém, ultimamente a empresa está passando por dificuldades financeiras porque não consegue encontrar bons imóveis para comprar e, posteriormente, revender. Portanto, os objetivos dessa análise de dados  são encontrar bons imóveis para comprar e decidir o melhor momento e preço para vendê-los.')
 
@@ -234,7 +234,7 @@ def overview_data(data):
 
     return None
 
-def portfolio_density(data, geofile):
+def portfolio_density(data):
 
     # group by zipcode and return median price
     grouped = data[['zipcode', 'price']].groupby('zipcode').median().reset_index()
@@ -431,7 +431,7 @@ if __name__ == "__main__":
 
     overview_data(data)
 
-    portfolio_density(data, geofile)
+    portfolio_density(data)
 
     commercial_distribution(data)
 
