@@ -7,11 +7,18 @@ import folium
 from streamlit_folium import folium_static
 from folium.plugins import MarkerCluster
 
+from streamlit_option_menu import option_menu
+
 import plotly.express as px
 
 from datetime import datetime
 
 st.set_page_config(layout='wide')
+
+with st.sidebar:
+    selected = option_menu("Main Menu", ["Home", 'Settings', 'Nuvem'],
+        icons=['house', 'gear', 'cloud-upload'], menu_icon="cast", default_index=1)
+
 
 @st.cache(allow_output_mutation=True)
 def get_data(path):
@@ -133,109 +140,112 @@ def set_feature(data):
     return data
 
 def overview_data(data):
-    col1, col2, col3 = st.columns(3)
-    col2.image('sale.jpg', width=300)
 
+    if selected == 'Home':
+        # Header Image
+        col1, col2, col3 = st.columns(3)
+        col2.image('sale.jpg', width=300)
 
-    st.title('House Rocket Data')
-    st.write('House Rocket é uma empresa fictícia de real estate localizada em King County, Seattle. Seu principal negócio é voltado para a revenda de imóveis naquela região. Porém, ultimamente a empresa está passando por dificuldades financeiras porque não consegue encontrar bons imóveis para comprar e, posteriormente, revender. Portanto, os objetivos dessa análise de dados  são encontrar bons imóveis para comprar e decidir o melhor momento e preço para vendê-los.')
+        # Title
+        st.title('House Rocket Data')
+        st.write(
+            'House Rocket é uma empresa fictícia de real estate localizada em King County, Seattle. Seu principal negócio é voltado para a revenda de imóveis naquela região. Porém, ultimamente a empresa está passando por dificuldades financeiras porque não consegue encontrar bons imóveis para comprar e, posteriormente, revender. Portanto, os objetivos dessa análise de dados  são encontrar bons imóveis para comprar e decidir o melhor momento e preço para vendê-los.')
 
-    b_dataset = st.checkbox('Display Dataset')
-    if b_dataset:
-        st.dataframe(data)
+        b_dataset = st.checkbox('Display Dataset')
+        if b_dataset:
+            st.dataframe(data)
 
-    # Hypotheses
+    if selected == 'Settings':
 
-    st.title('Hipóteses')
+        # Hypotheses
+        st.title('Hipóteses')
+        c1, c2 = st.columns((1, 1))
 
-    c1, c2 = st.columns((1, 1))
+        #H1
+        c1.write('H1) Imóveis que possuem vista para a água são, em média, 30% mais caros.')
+        # group by 'waterfront_option' and take average price
+        grouped = data[['waterfront_option', 'price']].groupby('waterfront_option').mean().reset_index()
+        # plot
+        c1.bar_chart(grouped, x='waterfront_option', y='price')
 
+        #H2
+        c2.write('H2) Imóveis com data de construção menor que 1955 são, em média, 50% mais baratos')
+        # group data by "before" and "after" year 1955
+        grouped = data[['is_before_1955', 'price']].groupby('is_before_1955').mean().reset_index()
+        # plot
+        c2.bar_chart(grouped, x='is_before_1955', y='price')
 
-    #H1
-    c1.write('H1) Imóveis que possuem vista para a água são, em média, 30% mais caros.')
-    # group by 'waterfront_option' and take average price
-    grouped = data[['waterfront_option', 'price']].groupby('waterfront_option').mean().reset_index()
-    # plot
-    c1.bar_chart(grouped, x='waterfront_option', y='price')
+        #H3
+        c1.write('H3) Imóveis com porão são, em média, 20% mais caros.')
+        # group by basement
+        grouped = data[['basement_option', 'price']].groupby('basement_option').mean().reset_index()
+        # plot
+        c1.bar_chart(grouped, x='basement_option', y='price')
 
-    #H2
-    c2.write('H2) Imóveis com data de construção menor que 1955 são, em média, 50% mais baratos')
-    # group data by "before" and "after" year 1955
-    grouped = data[['is_before_1955', 'price']].groupby('is_before_1955').mean().reset_index()
-    # plot
-    c2.bar_chart(grouped, x='is_before_1955', y='price')
+        #H4
+        c2.write('H4) O crescimento do preço dos imóveis year over year (YoY) é de 10%.')
+        # group by year
+        grouped = data[['year', 'price']].groupby('year').mean().reset_index()
+        # plot
+        c2.bar_chart(grouped, x='year', y='price')
 
-    #H3
-    c1.write('H3) Imóveis com porão são, em média, 20% mais caros.')
-    # group by basement
-    grouped = data[['basement_option', 'price']].groupby('basement_option').mean().reset_index()
-    # plot
-    c1.bar_chart(grouped, x='basement_option', y='price')
+        #H5
+        c1.write('H5) Imóveis com 3 banheiros tem um crescimento month over month (MoM) de 15%.')
+        # group by year-month and return the mean value
+        grouped = data[['price', 'month_year']].groupby('month_year').mean().reset_index()
+        # plot
+        c1.line_chart(grouped, x='month_year', y='price')
 
-    #H4
-    c2.write('H4) O crescimento do preço dos imóveis year over year (YoY) é de 10%.')
-    # group by year
-    grouped = data[['year', 'price']].groupby('year').mean().reset_index()
-    # plot
-    c2.bar_chart(grouped, x='year', y='price')
+        #H6
+        c2.write('H6) Imóveis térreos são, em média, 50% mais baratos do que imóveis com andar.')
+        # group by floor and return mean values
+        grouped = data[['price', 'is_floor']].groupby('is_floor').mean().reset_index()
+        # plot
+        c2.bar_chart(grouped, x='is_floor', y='price')
 
-    #H5
-    c1.write('H5) Imóveis com 3 banheiros tem um crescimento month over month (MoM) de 15%.')
-    # group by year-month and return the mean value
-    grouped = data[['price', 'month_year']].groupby('month_year').mean().reset_index()
-    # plot
-    c1.line_chart(grouped, x='month_year', y='price')
+        #H7
+        c1.write('H7) O preço dos imóveis no inverno é, em média, 20% mais barato do que no verão.')
+        # group by season and return mean price
+        grouped = data[['price', 'season']].groupby('season').mean().reset_index()
+        # plot
+        c1.bar_chart(grouped, x='season',y='price')
 
-    #H6
-    c2.write('H6) Imóveis térreos são, em média, 50% mais baratos do que imóveis com andar.')
-    # group by floor and return mean values
-    grouped = data[['price', 'is_floor']].groupby('is_floor').mean().reset_index()
-    # plot
-    c2.bar_chart(grouped, x='is_floor', y='price')
+        #H8
+        c2.write('H8) Imóveis sem reforma são, em média, 30% mais baratos do que imóveis reformados.')
+        # group by renovation
+        grouped = data.loc[:, ['is_renovated', 'price']].groupby('is_renovated').mean().reset_index()
+        # plot
+        c2.bar_chart(grouped, x='is_renovated', y='price')
 
-    #H7
-    c1.write('H7) O preço dos imóveis no inverno é, em média, 20% mais barato do que no verão.')
-    # group by season and return mean price
-    grouped = data[['price', 'season']].groupby('season').mean().reset_index()
-    # plot
-    c1.bar_chart(grouped, x='season',y='price')
+        #H9
+        c1.write('H9) Imóveis reformados a partir de 2010 são, em média, 40% mais caros do que imóveis reformados anteriormente (ou sem reforma).')
+        # group by renovation
+        grouped = data.loc[:, ['renovated_2010', 'price']].groupby('renovated_2010').mean().reset_index()
+        # plot
+        c1.bar_chart(grouped, x='renovated_2010', y='price')
 
-    #H8
-    c2.write('H8) Imóveis sem reforma são, em média, 30% mais baratos do que imóveis reformados.')
-    # group by renovation
-    grouped = data.loc[:, ['is_renovated', 'price']].groupby('is_renovated').mean().reset_index()
-    # plot
-    c2.bar_chart(grouped, x='is_renovated', y='price')
+        #H10
+        c2.write('H10) Imóveis em boas condições são, em média, 50% mais caros do que imóveis em más condições.')
+        # group by condition
+        grouped = data[['condition_type', 'price']].groupby('condition_type').mean().reset_index()
+        # plot
+        c2.bar_chart(grouped, x='condition_type', y='price')
 
-    #H9
-    c1.write('H9) Imóveis reformados a partir de 2010 são, em média, 40% mais caros do que imóveis reformados anteriormente (ou sem reforma).')
-    # group by renovation
-    grouped = data.loc[:, ['renovated_2010', 'price']].groupby('renovated_2010').mean().reset_index()
-    # plot
-    c1.bar_chart(grouped, x='renovated_2010', y='price')
+        #H11
+        c1.write('H11) Imóveis com até 2 quartos são, em média, 20% mais baratos do que imóveis com mais quartos.')
+        # group by bedroom
+        grouped = data.loc[:, ['bedrooms_amount', 'price']].groupby('bedrooms_amount').mean().reset_index()
+        # plot
+        c1.bar_chart(grouped, x='bedrooms_amount', y='price')
 
-    #H10
-    c2.write('H10) Imóveis em boas condições são, em média, 50% mais caros do que imóveis em más condições.')
-    # group by condition
-    grouped = data[['condition_type', 'price']].groupby('condition_type').mean().reset_index()
-    # plot
-    c2.bar_chart(grouped, x='condition_type', y='price')
+        #H12
+        c2.write('H12) Imóveis com 1 banheiro são, em média, 30% mais baratos do que imóveis com mais banheiros.')
+        # group by bathroom amount
+        grouped = data.loc[:, ['price', 'bathrooms_amount']].groupby('bathrooms_amount').mean().reset_index()
+        # plot
+        c2.bar_chart(grouped, x='bathrooms_amount', y='price')
 
-    #H11
-    c1.write('H11) Imóveis com até 2 quartos são, em média, 20% mais baratos do que imóveis com mais quartos.')
-    # group by bedroom
-    grouped = data.loc[:, ['bedrooms_amount', 'price']].groupby('bedrooms_amount').mean().reset_index()
-    # plot
-    c1.bar_chart(grouped, x='bedrooms_amount', y='price')
-
-    #H12
-    c2.write('H12) Imóveis com 1 banheiro são, em média, 30% mais baratos do que imóveis com mais banheiros.')
-    # group by bathroom amount
-    grouped = data.loc[:, ['price', 'bathrooms_amount']].groupby('bathrooms_amount').mean().reset_index()
-    # plot
-    c2.bar_chart(grouped, x='bathrooms_amount', y='price')
-
-    return None
+        return None
 
 def portfolio_density(data):
 
@@ -272,148 +282,80 @@ def portfolio_density(data):
     data_dont_buy = data[data['status'] == "don't buy"]
     data_buy = data[data['status'] == 'buy']
 
+    # Selling Dataframe
 
+    # group by zipcode and season and return the median price
+    grouped = data[['season', 'zipcode', 'price']].groupby(['zipcode', 'season']).median().reset_index()
 
+    # organize values by zipcode first and then price
+    grouped = grouped.sort_values(['zipcode', 'price'])
 
-    # MAP
+    # keep the highest price only
+    grouped = grouped.drop_duplicates(subset=['zipcode'], keep='last').reset_index()
 
-    st.title('Map')
+    # drop index column
+    grouped = grouped.drop(columns='index')
+
+    # rename columns
+    grouped = grouped.rename(columns={'season': 'hight_season', 'price': 'season_median_price'})
+    # filter columns by profitable houses (column 'status' equal to 'buy' value)
+    data = data.loc[(data['status'] == 'buy'), ['id', 'date', 'price', 'sqft_living', 'bedrooms', 'bathrooms', 'yr_built', 'zipcode', 'season', 'lat', 'long', 'status']]
+
+    # merge grouped dataset with general dataset by zipcode to return highest season median prices
+    data = pd.merge(data, grouped, on='zipcode', how='inner')
+    # create new column 'selling_price'
+    data['selling_price'] = 0
+
+    # for each line in dataset
+    for i in range(len(data)):
+
+        # if 'price' is lower than 'season_median_price'
+        if (data.loc[i, 'price'] < data.loc[i, 'season_median_price']):
+
+            # column 'selling_price' receives 'price' plus 30%
+            data.loc[i, 'selling_price'] = (data.loc[i, 'price']) * 1.30
+
+        else:
+
+            # column 'selling_price' receives 'price' plus 10%
+            data.loc[i, 'selling_price'] = (data.loc[i, 'price']) * 1.10
+    # drop columns
+    cols_drop = ['season', 'status']
+    data = data.drop(columns=cols_drop)
+
+    # create profit column
+    data['profit'] = data['selling_price'] - data['price']
+
+    # round values
+    data['price'] = data['price'].astype(int)
+    data['selling_price'] = data['selling_price'].astype(int)
+    data['profit'] = data['profit'].astype(int)
+    data['sqft_living'] = data['sqft_living'].astype(int)
+    data['bathrooms'] = data['bathrooms'].round(0)
+    data['bathrooms'] = data['bathrooms'].astype(int)
+    data['yr_built'] = data['yr_built'].apply(lambda x: x.year)
 
     # Base Map - Folium
-    m = folium.Map(location=[data['lat'].mean(), data['long'].mean()], default_zoom_start=15)
+    density_map = folium.Map(location=[data['lat'].mean(),
+                                       data['long'].mean()],
+                             default_zoom_start=15)
+
+    marker_cluster = MarkerCluster().add_to(density_map)
+    for name, row in data.iterrows():
+        folium.Marker([row['lat'], row['long']],
+                      popup='Price: US${0}. Advisable to sell in the {1} for US${2}. Profit: US${3}. Area: {4} sqft. Bedroom(s): {5}. Bathroom(s): {6}. Year built: {7}.'.format(
+                          row['price'],
+                          row['hight_season'],
+                          row['selling_price'],
+                          row['profit'],
+                          row['sqft_living'],
+                          row['bedrooms'],
+                          row['bathrooms'],
+                          row['yr_built'])).add_to(marker_cluster)
 
 
+    folium_static(density_map)
 
-
-    # Dont buy dots
-    locations = list(zip(data_dont_buy['lat'], data_dont_buy['long']))
-
-    for i in range(len(locations)):
-        folium.CircleMarker(location=locations[i], radius=1).add_to(m)
-
-
-
-
-    # Marker buy dots
-    for name, row in data_buy.iterrows():
-
-        folium.Marker([row['lat'], row['long']], popup='Price: R${0}. Bedrooms: {1}. Bathrooms: {2}. Sqft_living: {3}. Year built: {4}'.format(row['price'], row['bedrooms'], row['bathrooms'], row['sqft_living'], row['yr_built']), icon=folium.Icon(color='green')).add_to(m)
-
-    folium_static(m)
-
-    return None
-
-def commercial_distribution(data):
-
-    st.sidebar.title('Commercial Options')
-    st.title('Commercial Attributes')
-
-    # ----- Average price per year
-    data['date'] = pd.to_datetime(data['date']).dt.strftime('%Y-%m-%d')
-
-    # filters
-    min_year_built = int(data['yr_built'].min())
-    max_year_built = int(data['yr_built'].max())
-
-    st.sidebar.subheader('Select Max Year Built')
-    f_year_built = st.sidebar.slider('Year Built', min_year_built,
-                                     max_year_built,
-                                     min_year_built)
-
-    st.header('Average Price per Year Built')
-
-    # data selection
-    df = data.loc[data['yr_built'] < f_year_built]
-    df = data[['yr_built', 'price']].groupby('yr_built').mean().reset_index()
-
-    # plot
-    fig = px.line(df, x='yr_built', y='price')
-    st.plotly_chart(fig, use_container_width=True)
-
-    # ----- Average price per day
-    st.header('Average Price per day')
-    st.sidebar.subheader('Select Max Date')
-
-    # filters
-    min_date = datetime.strptime(data['date'].min(), '%Y-%m-%d')
-    max_date = datetime.strptime(data['date'].max(), '%Y-%m-%d')
-
-    f_date = st.sidebar.slider('Date', min_date, max_date, min_date)
-
-    # data filtering
-    data['date'] = pd.to_datetime(data['date'])
-    df = data.loc[data['date'] < f_date]
-    df = data[['date', 'price']].groupby('date').mean().reset_index()
-
-    # plot
-    fig = px.line(df, x='date', y='price')
-    st.plotly_chart(fig, use_container_width=True)
-
-    # ----- Histograma
-    st.header('Price Distribution')
-    st.sidebar.subheader('Select Max Price')
-
-    # filter
-    min_price = int(data['price'].max())
-    max_price = int(data['price'].min())
-    avg_price = int(data['price'].mean())
-
-    # data filtering
-    f_price = st.sidebar.slider('Price', min_price, max_price, avg_price)
-    df = data.loc[data['price'] < f_price]
-
-    # data plot
-    fig = px.histogram(df, x='price', nbins=50)
-    st.plotly_chart(fig, use_container_width=True)
-
-    return None
-
-def attributes_distribution(data):
-
-    st.sidebar.title('Attributes Options')
-    st.title('House Attributes')
-
-    # filters
-    f_bedrooms = st.sidebar.selectbox('Max number of bedrooms', sorted(set(data['bedrooms'].unique())))
-    f_bathrooms = st.sidebar.selectbox('Max number of bathrooms', sorted(set(data['bathrooms'].unique())))
-
-    c1, c2 = st.columns(2)
-
-    # House per bedrooms
-    c1.header('Houses per bedrooms')
-    df = data[data['bedrooms'] < f_bedrooms]
-    fig = px.histogram(df, x='bedrooms', nbins=19)
-    c1.plotly_chart(fig, use_container_width=True)
-
-    # House per bathrooms
-    c2.header('Houses per bathrooms')
-    df = data[data['bathrooms'] < f_bathrooms]
-    fig = px.histogram(data, x='bathrooms', nbins=19)
-    c2.plotly_chart(fig, use_container_width=True)
-
-    # filters
-    f_floors = st.sidebar.selectbox('Max number of floor', sorted(set(data['floors'].unique())))
-    f_waterview = st.sidebar.checkbox('Only Houses With Waterview')
-
-    c1, c2 = st.columns(2)
-
-    # House per floors
-    c1.header('Houses per Floor')
-    df = data[data['floors'] < f_floors]
-
-    # plot
-    fig = px.histogram(data, x='floors', nbins=19)
-    c1.plotly_chart(fig, use_container_width=True)
-
-    # House per waterview
-    if f_waterview:
-        df = data[data['waterfront'] == 1]
-    else:
-        df = data.copy()
-
-    # plot
-    fig = px.histogram(df, x='waterfront', nbins=10)
-    c2.plotly_chart(fig, use_container_width=True)
 
     return None
 
@@ -435,7 +377,3 @@ if __name__ == "__main__":
     overview_data(data)
 
     portfolio_density(data)
-
-    commercial_distribution(data)
-
-    attributes_distribution(data)
