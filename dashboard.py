@@ -368,8 +368,6 @@ def insights(data):
         st.write(':small_orange_diamond: Properties with up to 1 bathroom are, on average, 40% cheaper than properties with more bathrooms.')
 
 
-        st.metric(label="Properties Found", value = data.loc[data['status'] == 'buy', 'status'].shape[0])
-
         return None
 
 def conclusion(data):
