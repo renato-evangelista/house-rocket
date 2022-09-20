@@ -1,20 +1,18 @@
-import geopandas
 import streamlit as st
 import pandas as pd
 import numpy as np
 import folium
-
 from streamlit_folium import folium_static
 from folium.plugins import MarkerCluster
-
 from streamlit_option_menu import option_menu
-
 import plotly.express as px
-
 from datetime import datetime
 
+
+# increase page layout
 st.set_page_config(layout='wide')
 
+# Sidebar
 with st.sidebar:
     selected = option_menu("Menu", ['Introduction', 'Insights', 'Conclusion'],
         icons=['house', 'lightbulb', 'bookmark-check'], menu_icon="cast", default_index=0)
@@ -32,6 +30,7 @@ def introduction(data):
 
     if selected == 'Introduction':
 
+        # Introduction
         st.markdown("<h1 style='text-align: center; color: black;'>House Rocket Project</h1>", unsafe_allow_html=True)
         st.write('')
         st.write("House Rocket is a fictitious real estate company - its business model is buying and selling properties. The business team doesn't make good decisions because the amount of data is large and it would take a long time to do the work manually. So, this project aims to get insights through the analysis and manipulation of data to assist business team decisions.")
@@ -39,29 +38,33 @@ def introduction(data):
         st.write(":pushpin: Once bought, at what price should it sell?")
         st.write(":pushpin: When is the best time to sell it?")
 
+        # Show dataset
         st.header('The Data')
         b_dataset = st.checkbox('Display Dataset')
         if b_dataset:
             st.dataframe(data)
 
+        # Assumptions
         st.header('Assumptions')
         st.write(":small_orange_diamond: For repeated id's, the most recent sale of the property was considered;")
         st.write(':small_orange_diamond: Properties with a renewal year equal to 0 were considered without renovation;')
         st.write(':small_orange_diamond: The line corresponding to a property with 33 bedrooms has been removed as it was considered a typo;')
         st.write(':small_orange_diamond: The sqft_living15 and sqft_lot15 features, which correspond to the area of neighborhood properties, were disregarded.')
 
+        # The Final Product
         st.header('The Final Product')
         st.write('The following products will be delivered to the company to solve the business problems:')
         st.write(':small_orange_diamond: Report with properties to buy;')
         st.write(':small_orange_diamond: Map with the best season to sell it and the suggested price.')
+
     return None
 
 def set_feature(data):
 
-    # add new features
-    data['price_m2'] = data['price'] / data['sqft_lot']
+    # == Change Types ==
 
-    # Change Types
+    # add new feature
+    data['price_m2'] = data['price'] / data['sqft_lot']
 
     # change the "date" column from type "object" to "datetime"
     data['date'] = pd.to_datetime(data['date'])
@@ -80,7 +83,7 @@ def set_feature(data):
     data['condition'] = data['condition'].astype(str)
 
 
-    # Line Filtering
+    # == Line Filtering ==
 
     # remove row with outlier from the "bedrooms" column
     data = data.drop(data[data['bedrooms'] == 33].index)
@@ -94,8 +97,7 @@ def set_feature(data):
     # drop extra index column
     data = data.drop(columns=['index'])
 
-
-    # Column Selection
+    # == Column Selection ==
 
     # select columns to drop
     cols_drop = ['sqft_living15', 'sqft_lot15']
@@ -104,7 +106,7 @@ def set_feature(data):
     data = data.drop(columns=cols_drop)
 
 
-    # Hypotheses
+    # == Hypotheses ==
 
     # H1
     # add new column with waterfront option ("yes" or "no")
@@ -176,6 +178,9 @@ def set_feature(data):
     # create new empty column
     data['status'] = 0
 
+
+    # == "Buy"/"Don't buy" Feature ==
+
     # for each line (i) in dataframe
     for i in range(len(data)):
 
@@ -194,7 +199,7 @@ def set_feature(data):
             data.loc[i, 'status'] = "don't buy"
 
 
-    # Selling Dataframe
+    # == Selling Dataframe ==
 
     # group by zipcode and season and return the median price
     grouped = data[['season', 'zipcode', 'price']].groupby(['zipcode', 'season']).median().reset_index()
@@ -217,6 +222,9 @@ def set_feature(data):
     # create new column 'selling_price'
     data['selling_price'] = 0
 
+
+    # == Selling price feature ==
+
     # for each line in dataset
     for i in range(len(data)):
 
@@ -238,10 +246,9 @@ def set_feature(data):
 
 def insights(data):
 
-
     if selected == 'Insights':
 
-        # Hypotheses
+        # Header
         st.markdown("<h1 style='text-align: center; color: black;'>Hypotheses</h1>", unsafe_allow_html=True)
         st.write('')
         c1, c2 = st.columns((1, 1))
@@ -275,8 +282,7 @@ def insights(data):
         fig.update_traces(marker_color='rgba(0, 255, 17, 0.6)')
         c1.plotly_chart(fig, use_container_width=True)
 
-
-        #H2
+        # H2
         c2.subheader(':small_orange_diamond: Properties built before 1955 are, on average, 50% cheaper.')
         c2.write(':heavy_multiplication_x: False because properties built before 1955 are only 0.4% cheaper, on average, than properties built after that year.')
         # group data by "before" and "after" year 1955
@@ -286,7 +292,7 @@ def insights(data):
         fig.update_traces(marker_color='rgba(255, 0, 0, 0.6)')
         c2.plotly_chart(fig, use_container_width=True)
 
-        #H5
+        # H5
         c1.subheader(':small_orange_diamond: Properties with 3 bathrooms have a month over month growth of 15%.')
         c1.write(':heavy_multiplication_x: False because the growth was less than 15% in all months.')
         # group by year-month and return the mean value
@@ -296,7 +302,7 @@ def insights(data):
         #fig.update_traces(marker_color='rgba(255, 0, 0, 0.6)')
         c1.plotly_chart(fig, use_container_width=True)
 
-        #H10
+        # H10
         c2.subheader(':small_orange_diamond: Properties in good condition are, on average, 50% more expensive.')
         c2.write(':heavy_multiplication_x: False because properties in good condition are, on average, only 0.4% more expensive than properties in bad condition.')
         # group by condition
@@ -306,7 +312,7 @@ def insights(data):
         fig.update_traces(marker_color='rgba(255, 0, 0, 0.6)')
         c2.plotly_chart(fig, use_container_width=True)
 
-        #H12
+        # H12
         c1.subheader(':small_orange_diamond: Properties with 1 bathroom are, on average, 30% cheaper.')
         c1.write(':heavy_check_mark: True because properties with up to 1 bathroom are, on average, 40% cheaper than properties with more bathrooms.')
         # group by bathroom amount
@@ -367,23 +373,27 @@ def insights(data):
         st.write(':small_orange_diamond: Properties with up to 2 bedrooms are, on average, 30% cheaper than properties with more bedrooms;')
         st.write(':small_orange_diamond: Properties with up to 1 bathroom are, on average, 40% cheaper than properties with more bathrooms.')
 
-
         return None
 
 def conclusion(data):
 
     if selected == 'Conclusion':
 
+        # Header
         st.markdown("<h1 style='text-align: center; color: black;'>Best Properties</h1>", unsafe_allow_html=True)
         st.write(":small_orange_diamond: Considering the insights described before, the purchase opportunities were identified below. You can filter them by neighborhood:")
         st.write('')
+
+        # Select properties with "buy" feature
         data = data.loc[data['status'] == 'buy', ['id', 'price', 'high_season', 'selling_price', 'profit', 'sqft_living', 'bedrooms', 'bathrooms', 'yr_built', 'zipcode', 'lat', 'long']].reset_index()
         data = data.drop(columns='index')
 
+        # Show all properties checkbox
         all_zipcodes = np.sort(data['zipcode'].unique())
         all_options = st.checkbox("SHOW ALL PROPERTIES", value=True)
         st.write('')
 
+        # Checkbox filter
         if all_options:
             selected_option = all_zipcodes
         else:
@@ -391,8 +401,7 @@ def conclusion(data):
 
         data = data.loc[data['zipcode'].isin(selected_option), :]
 
-
-        # round values
+        # Round values
         data['price'] = data['price'].astype(int)
         data['selling_price'] = data['selling_price'].astype(int)
         data['profit'] = data['profit'].astype(int)
@@ -401,26 +410,34 @@ def conclusion(data):
         data['bathrooms'] = data['bathrooms'].astype(int)
         data['yr_built'] = data['yr_built'].apply(lambda x: x.year)
 
+
+        # == Metrics ==
+
+        # Copy data to df
         df = data.copy()
-        df = df.rename(columns={'high_season':'best_season_to_sell'})
 
+        # Rename column to "best season to sell"
+        df = df.rename(columns={'high_season': 'best_season_to_sell'})
 
-        # Metrics
-
+        # Show dataframe
         col1, col2= st.columns(2)
-
         col2.header(':small_orange_diamond:Data')
         col2.dataframe(df.loc[:, ['id', 'best_season_to_sell', 'bedrooms', 'bathrooms', 'yr_built', 'price', 'selling_price', 'profit']], width=1080)
 
+        # Show summary
         col1.header(':small_orange_diamond:Summary')
         col1.metric(label="Properties", value=df.shape[0])
         col1.metric(label="Price (US$)", value=df['price'].sum())
         col1.metric(label="Profit", value=df['profit'].sum())
 
-        # Base Map - Folium
+
+        # == Map ==
+
+        # Header
         st.header(':small_orange_diamond:Map')
         st.write('')
 
+        # Show map
         density_map = folium.Map(location=[data['lat'].mean(),
                                            data['long'].mean()],
                                  default_zoom_start=15)
@@ -440,29 +457,21 @@ def conclusion(data):
 
         folium_static(density_map)
 
+        # Conclusion
         st.markdown("<h1 style='text-align: center; color: black;'>Conclusion</h1>", unsafe_allow_html=True)
-
         st.write(":small_orange_diamond: Considering all the insights described before, 429 purchase opportunities were identified. These opportunities, combined, generate a profit of approximately 40 million dollars - the average profit, per property, is 93 thousand dollars. The solution was divided between two stages: the purchase stage and the property sale stage. In addition, I considered the season of sales in this segment of the real estate market as a business premise.")
         st.write(":small_orange_diamond: For the purchase stage, with the data processed and organized, during the exploratory analysis I raised some hypotheses. The most relevant hypotheses, such as the one referring to the property's condition were considered for their purchase. For the sale stage, I grouped the properties by region (zipcode) and season, then returned the median price. Properties with a value above the median value of the region will be sold with an increase of 10%. Properties with a value below the median value of the region will be sold with an increase of 30%. This way, I considered the best time of the year for sale in each region.")
 
     return None
 
 if __name__ == "__main__":
-    # ETL
+
     # data extraction
-
     path = 'kc_house_data.csv'
-
     data = get_data(path)
 
     # transformation
-
     introduction(data)
-
     data = set_feature(data)
-
     insights(data)
-
     conclusion(data)
-
-
