@@ -14,6 +14,7 @@ import plotly.express as px
 from datetime import datetime
 
 st.set_page_config(layout='wide')
+
 with st.sidebar:
     selected = option_menu("Menu", ['Introduction', 'Insights', 'Conclusion'],
         icons=['house', 'lightbulb', 'bookmark-check'], menu_icon="cast", default_index=0)
@@ -208,7 +209,7 @@ def set_feature(data):
     grouped = grouped.drop(columns='index')
 
     # rename columns
-    grouped = grouped.rename(columns={'season': 'hight_season', 'price': 'season_median_price'})
+    grouped = grouped.rename(columns={'season': 'high_season', 'price': 'season_median_price'})
     # filter columns by profitable houses (column 'status' equal to 'buy' value)
 
     # merge grouped dataset with general dataset by zipcode to return highest season median prices
@@ -315,78 +316,113 @@ def insights(data):
         fig.update_traces(marker_color='rgba(0, 255, 17, 0.6)')
         c1.plotly_chart(fig, use_container_width=True)
 
-        # #H4
-        # c2.subheader(':small_orange_diamond: The year over year property price growth is 10%.')
-        # c2.write(':heavy_multiplication_x: False because the growth presented, on average, the value of 0.2%.')
-        # # group by year
-        # grouped = data[['year', 'price']].groupby('year').mean().reset_index()
-        # # plot
-        # fig = px.bar(grouped, x='year', y='price')
-        # fig.update_traces(marker_color='rgba(255, 0, 0, 0.6)')
-        # c2.plotly_chart(fig, use_container_width=True)
+        # H7
+        c2.subheader(':small_orange_diamond: The price of real estate in winter is, on average, 20% cheaper than in summer.')
+        c2.write(':heavy_multiplication_x: False because real estate prices in winter are, on average, only 5% cheaper than in summer.')
+        # group by season and return mean price
+        grouped = data[['price', 'season']].groupby('season').mean().reset_index()
+        # plot
+        fig = px.bar(grouped, x='season', y='price')
+        fig.update_traces(marker_color='rgba(255, 0, 0, 0.6)')
+        c2.plotly_chart(fig, use_container_width=True)
 
-        #
-        # #H5
-        # c1.write('H5) Imóveis com 3 banheiros tem um crescimento month over month (MoM) de 15%.')
-        # # group by year-month and return the mean value
-        # grouped = data[['price', 'month_year']].groupby('month_year').mean().reset_index()
-        # # plot
-        # c1.line_chart(grouped, x='month_year', y='price')
-        #
-        #
-        #
-        # #H7
-        # c1.write('H7) O preço dos imóveis no inverno é, em média, 20% mais barato do que no verão.')
-        # # group by season and return mean price
-        # grouped = data[['price', 'season']].groupby('season').mean().reset_index()
-        # # plot
-        # c1.bar_chart(grouped, x='season',y='price')
-        #
-        # #H8
-        # c2.write('H8) Imóveis sem reforma são, em média, 30% mais baratos do que imóveis reformados.')
-        # # group by renovation
-        # grouped = data.loc[:, ['is_renovated', 'price']].groupby('is_renovated').mean().reset_index()
-        # # plot
-        # c2.bar_chart(grouped, x='is_renovated', y='price')
-        #
-        # #H9
-        # c1.write('H9) Imóveis reformados a partir de 2010 são, em média, 40% mais caros do que imóveis reformados anteriormente (ou sem reforma).')
-        # # group by renovation
-        # grouped = data.loc[:, ['renovated_2010', 'price']].groupby('renovated_2010').mean().reset_index()
-        # # plot
-        # c1.bar_chart(grouped, x='renovated_2010', y='price')
-        #
+        # H11
+        c1.write('')
+        c1.write('')
+        c1.subheader(':small_orange_diamond: Properties with up to 2 bedrooms are, on average, 20% cheaper.')
+        c1.write(':heavy_check_mark: True because properties with up to 2 bedrooms are, on average, 30% cheaper than properties with more than 2 bedrooms.')
+        # group by bedroom
+        grouped = data.loc[:, ['bedrooms_amount', 'price']].groupby('bedrooms_amount').mean().reset_index()
+        # plot
+        fig = px.bar(grouped, x='bedrooms_amount', y='price')
+        fig.update_traces(marker_color='rgba(0, 255, 17, 0.6)')
+        c1.plotly_chart(fig, use_container_width=True)
 
-        #
-        # #H11
-        # c1.write('H11) Imóveis com até 2 quartos são, em média, 20% mais baratos do que imóveis com mais quartos.')
-        # # group by bedroom
-        # grouped = data.loc[:, ['bedrooms_amount', 'price']].groupby('bedrooms_amount').mean().reset_index()
-        # # plot
-        # c1.bar_chart(grouped, x='bedrooms_amount', y='price')
-        #
+        # H9
+        c2.subheader(':small_orange_diamond: Properties renovated after 2010, on average, 40% more expensive than properties previously renovated (or without renovation).')
+        c2.write(':heavy_multiplication_x: False because properties renovated after 2010 are, on average, 27% more expensive than previously renovated (or unrenovated) properties.')
+        # group by renovation
+        grouped = data.loc[:, ['renovated_2010', 'price']].groupby('renovated_2010').mean().reset_index()
+        # plot
+        fig = px.bar(grouped, x='renovated_2010', y='price')
+        fig.update_traces(marker_color='rgba(255, 0, 0, 0.6)')
+        c2.plotly_chart(fig, use_container_width=True)
+
+        # H8
+        c1.subheader(':small_orange_diamond: Unrenovated properties are, on average, 30% cheaper than renovated properties.')
+        c1.write(':heavy_check_mark: True because unrenovated properties are, on average, 30% cheaper than renovated properties.')
+        # group by renovation
+        grouped = data.loc[:, ['is_renovated', 'price']].groupby('is_renovated').mean().reset_index()
+        # plot
+        fig = px.bar(grouped, x='is_renovated', y='price')
+        fig.update_traces(marker_color='rgba(0, 255, 17, 0.6)')
+        c1.plotly_chart(fig, use_container_width=True)
+
+        # Main Insights
+        st.markdown("<h1 style='text-align: center; color: black;'>Main Insights</h1>", unsafe_allow_html=True)
+        st.write('')
+        st.write(':small_orange_diamond: Ground floor properties are, on average, 30% cheaper than properties with more floors;')
+        st.write(':small_orange_diamond: Properties with waterfront are, on average, 212% more expensive than properties without waterfront;')
+        st.write(':small_orange_diamond: Properties with a basement are, on average, 28% more expensive than properties without a basement;')
+        st.write(':small_orange_diamond: Properties with up to 2 bedrooms are, on average, 30% cheaper than properties with more bedrooms;')
+        st.write(':small_orange_diamond: Properties with up to 1 bathroom are, on average, 40% cheaper than properties with more bathrooms.')
 
 
-
+        st.metric(label="Properties Found", value = data.loc[data['status'] == 'buy', 'status'].shape[0])
 
         return None
 
-def conclusao(data):
-
-    data = data.loc[data['status'] == 'buy', ['price', 'hight_season', 'selling_price', 'profit', 'sqft_living', 'bedrooms', 'bathrooms', 'yr_built', 'lat', 'long']]
-
-    # round values
-    data['price'] = data['price'].astype(int)
-    data['selling_price'] = data['selling_price'].astype(int)
-    data['profit'] = data['profit'].astype(int)
-    data['sqft_living'] = data['sqft_living'].astype(int)
-    data['bathrooms'] = data['bathrooms'].round(0)
-    data['bathrooms'] = data['bathrooms'].astype(int)
-    data['yr_built'] = data['yr_built'].apply(lambda x: x.year)
+def conclusion(data):
 
     if selected == 'Conclusion':
 
+        st.markdown("<h1 style='text-align: center; color: black;'>Best Properties</h1>", unsafe_allow_html=True)
+        st.write(":small_orange_diamond: Considering the insights described before, the purchase opportunities were identified below. You can filter them by neighborhood:")
+        st.write('')
+        data = data.loc[data['status'] == 'buy', ['id', 'price', 'high_season', 'selling_price', 'profit', 'sqft_living', 'bedrooms', 'bathrooms', 'yr_built', 'zipcode', 'lat', 'long']].reset_index()
+        data = data.drop(columns='index')
+
+        all_zipcodes = np.sort(data['zipcode'].unique())
+        all_options = st.checkbox("SHOW ALL PROPERTIES", value=True)
+        st.write('')
+
+        if all_options:
+            selected_option = all_zipcodes
+        else:
+            selected_option = st.multiselect('In which region would you like to buy a property? Choose a zipcode below:', all_zipcodes, default=98001)
+
+        data = data.loc[data['zipcode'].isin(selected_option), :]
+
+
+        # round values
+        data['price'] = data['price'].astype(int)
+        data['selling_price'] = data['selling_price'].astype(int)
+        data['profit'] = data['profit'].astype(int)
+        data['sqft_living'] = data['sqft_living'].astype(int)
+        data['bathrooms'] = data['bathrooms'].round(0)
+        data['bathrooms'] = data['bathrooms'].astype(int)
+        data['yr_built'] = data['yr_built'].apply(lambda x: x.year)
+
+        df = data.copy()
+        df = df.rename(columns={'high_season':'best_season_to_sell'})
+
+
+        # Metrics
+
+        col1, col2= st.columns(2)
+
+        col2.header(':small_orange_diamond:Data')
+        col2.dataframe(df.loc[:, ['id', 'best_season_to_sell', 'bedrooms', 'bathrooms', 'yr_built', 'price', 'selling_price', 'profit']], width=1080)
+
+        col1.header(':small_orange_diamond:Summary')
+        col1.metric(label="Properties", value=df.shape[0])
+        col1.metric(label="Price (US$)", value=df['price'].sum())
+        col1.metric(label="Profit", value=df['profit'].sum())
+
         # Base Map - Folium
+        st.header(':small_orange_diamond:Map')
+        st.write('')
+
         density_map = folium.Map(location=[data['lat'].mean(),
                                            data['long'].mean()],
                                  default_zoom_start=15)
@@ -396,7 +432,7 @@ def conclusao(data):
             folium.Marker([row['lat'], row['long']],
                           popup='Price: US${0}. Advisable to sell in the {1} for US${2}. Profit: US${3}. Area: {4} sqft. Bedroom(s): {5}. Bathroom(s): {6}. Year built: {7}.'.format(
                               row['price'],
-                              row['hight_season'],
+                              row['high_season'],
                               row['selling_price'],
                               row['profit'],
                               row['sqft_living'],
@@ -405,6 +441,11 @@ def conclusao(data):
                               row['yr_built'])).add_to(marker_cluster)
 
         folium_static(density_map)
+
+        st.markdown("<h1 style='text-align: center; color: black;'>Conclusion</h1>", unsafe_allow_html=True)
+
+        st.write(":small_orange_diamond: Considering all the insights described before, 429 purchase opportunities were identified. These opportunities, combined, generate a profit of approximately 40 million dollars - the average profit, per property, is 93 thousand dollars. The solution was divided between two stages: the purchase stage and the property sale stage. In addition, I considered the season of sales in this segment of the real estate market as a business premise.")
+        st.write(":small_orange_diamond: For the purchase stage, with the data processed and organized, during the exploratory analysis I raised some hypotheses. The most relevant hypotheses, such as the one referring to the property's condition were considered for their purchase. For the sale stage, I grouped the properties by region (zipcode) and season, then returned the median price. Properties with a value above the median value of the region will be sold with an increase of 10%. Properties with a value below the median value of the region will be sold with an increase of 30%. This way, I considered the best time of the year for sale in each region.")
 
     return None
 
@@ -424,4 +465,6 @@ if __name__ == "__main__":
 
     insights(data)
 
-    conclusao(data)
+    conclusion(data)
+
+
