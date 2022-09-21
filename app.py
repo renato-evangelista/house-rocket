@@ -56,6 +56,7 @@ def introduction(data):
         st.write('The following products will be delivered to the company to solve the business problems:')
         st.write(':small_orange_diamond: Report with properties to buy;')
         st.write(':small_orange_diamond: Map with the best season to sell it and the suggested price.')
+        st.write('')
 
     return None
 
