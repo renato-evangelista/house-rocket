@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="300" height="300" src="https://github.com/renato-evangelista/house-rocket/blob/main/img1.png">
+  <img width="300" height="300" src="https://github.com/renato-evangelista/house-rocket/blob/main/gif1.gif">
 </p>
 
 ## Introdução
