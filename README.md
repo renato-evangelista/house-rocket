@@ -99,4 +99,8 @@ Portanto, como próximo passo, aplicaria ferramentas da Ciência de Dados como a
 
 ## Anexos
 
-https://www.kaggle.com/datasets/harlfoxem/housesalesprediction
+* https://www.kaggle.com/datasets/harlfoxem/housesalesprediction
+
+## App
+
+* https://house-rocket-byrenato.herokuapp.com/
