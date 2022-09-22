@@ -1,4 +1,4 @@
-<img align="left" width="100" height="100" src="https://github.com/renato-evangelista/house-rocket/blob/main/img1.png">
+<img align="left" width="500" height="500" src="https://github.com/renato-evangelista/house-rocket/blob/main/img1.png">
 
 ## Introdução
 
