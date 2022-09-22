@@ -20,7 +20,7 @@ Com o objetivo de encontrar quais imóveis a House Rocket deveria comprar e, uma
 
 ## Dados
 
-A base de dados corresponde a imóveis vendidos na região de King County, Seattle, entre 2014 e 2015. Todas as informações estão disponíveis no Kaggle¹:
+A base de dados corresponde a imóveis vendidos na região de King County, Seattle, entre 2014 e 2015. Todas as informações estão disponíveis no Kaggle (https://www.kaggle.com/datasets/harlfoxem/housesalesprediction):
 
 | Coluna        | Descrição                                                             |
 |---------------|-----------------------------------------------------------------------|
@@ -47,8 +47,11 @@ A base de dados corresponde a imóveis vendidos na região de King County, Seatt
 ## Premissas
 
 * As features sqft_living15 e sqft_lot15, que correspondem a área dos imóveis vizinhos, foram desconsideradas;
+
 * Imóveis com ano de renovação igual a 0 foram considerados sem reforma;
+
 * Para os id’s repetidos, foi considerada a venda mais recente do imóvel;
+
 * A linha correspondente a um imóvel com 33 quartos foi removida por ser considerada um erro de digitação.
 
 ## Ferramentas
@@ -91,15 +94,11 @@ Considerando todos os insights descritos anteriormente, identifiquei 429 oportun
 
 ## Conclusão e Próximos Passos
 
-É evidente que ao considerar os insights, encontramos boas oportunidades de compra e venda para a House Rocket. Os imóveis identificados para a compra foram os mais baratos e em boas condições, seguindo o modelo de negócio da empresa.
+Ao considerar os insights, encontramos boas oportunidades de compra e venda para a House Rocket. Os imóveis identificados para a compra foram os mais baratos e em boas condições, seguindo o modelo de negócio da empresa.
 
-De um lado, a quantidade de casas compradas é maior - amplia-se a variedade para os clientes. De outro, perde-se oportunidades de negócio - como, por exemplo, casas em condições regulares em ótima localização que possibilitam lucrar com a reforma.
+Para facilitar a tomada de decisão do time de negócios, no item “App” há um link que direciona para o aplicativo desse projeto. Esse app possibilita filtrar por bairro (zipcode) o relatório com todos imóveis selecionados para compra e revenda. Além disso, também é mostrado um mapa com a localização desses imóveis.
 
-Portanto, como próximo passo, aplicaria ferramentas da Ciência de Dados como algoritmos de regressão (machine learning) e realizaria pesquisa de mercado para identificar as principais features consideradas pelos clientes.
-
-## Anexos
-
-* https://www.kaggle.com/datasets/harlfoxem/housesalesprediction
+Como próximo passo, aplicaria ferramentas da Ciência de Dados como algoritmos de regressão (machine learning) e realizaria pesquisa de mercado para identificar as principais features consideradas pelos clientes.
 
 ## App
 
