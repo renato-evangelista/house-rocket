@@ -65,11 +65,12 @@ A base de dados corresponde a imóveis vendidos na região de King County, Seatt
 
 ## Desenvolvimento da Solução
 
-	A solução foi dividida em duas etapas: a etapa de compra e a etapa de venda do imóvel. Além disso, considerei como premissa do negócio a sazonalidade de vendas desse segmento de mercado imobiliário.
+A solução foi dividida em duas etapas: a etapa de compra e a etapa de venda do imóvel. Além disso, considerei como premissa do negócio a sazonalidade de vendas desse segmento de mercado imobiliário.
 
-	Para a compra, com os dados tratados e organizados, durante a análise exploratória levantei algumas hipóteses - que serão abordadas no item "Insights". As hipóteses mais relevantes, como a que se referia à condição do imóvel, foram levadas em consideração para a compra do mesmo.
+Para a compra, com os dados tratados e organizados, durante a análise exploratória levantei algumas hipóteses - que serão abordadas no item “Insights”. As hipóteses mais relevantes, como a que se referia à condição do imóvel, foram levadas em consideração para a compra do mesmo.
 
-	Para a venda, agrupei os imóveis por região (zipcode) e por sazonalidade (estação do ano) e retornei a mediana do preço. Imóveis com valor acima do valor mediano da região serão vendidos com acréscimo de 10%. Imóveis com valor abaixo do valor mediano da região serão vendidos com acréscimo de 30%. Sendo assim, considerei a melhor época do ano para venda em cada região.
+Para a venda, agrupei os imóveis por região (zipcode) e por sazonalidade (estação do ano) e retornei a mediana do preço. Imóveis com valor acima do valor mediano da região serão vendidos com acréscimo de 10%. Imóveis com valor abaixo do valor mediano da região serão vendidos com acréscimo de 30%. Sendo assim, considerei a melhor época do ano para venda em cada região.
+
 
 
 ## Insights
