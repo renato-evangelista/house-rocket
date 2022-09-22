@@ -1,4 +1,5 @@
-![img1](/home/renato/repos/python-zero-ao-ds/house_rocket_streamlit/img1.png)
+![img1](https://github.com/renato-evangelista/house-rocket/blob/main/img1.png?raw=true)
+
 
 # House Rocket Project
 
