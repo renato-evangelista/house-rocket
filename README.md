@@ -1,4 +1,6 @@
-![img1](https://github.com/renato-evangelista/house-rocket/blob/main/img1.png?raw=true)
+<p align="center">
+  <img width="300" height="300" src="https://github.com/renato-evangelista/house-rocket/blob/main/img1.png">
+</p>
 
 ## Introdução
 
