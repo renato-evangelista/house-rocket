@@ -102,4 +102,4 @@ Como próximo passo, aplicaria ferramentas da Ciência de Dados como algoritmos 
 
 ## App
 
-* https://house-rocket-byrenato.herokuapp.com/
+* https://renato-evangelista-house-rocket-app-k55xqt.streamlit.app/
